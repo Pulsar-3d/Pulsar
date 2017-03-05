@@ -504,6 +504,18 @@ static void lcd_implementation_status_screen() {
       lcd_print(buffer);
     }
 
+    //
+    // Estimated total time
+    //
+    if ((card.isFileOpen()) && (((int)(card.percentDone()) >= 5))) {
+        char buffer[10];
+        duration_t lcdttotal = ((print_job_timer.duration()*100)/card.percentDone());
+        bool has_days = (lcdttotal.value > 60*60*24L);
+        uint8_t len = lcdttotal.toDigital(buffer, has_days);
+        u8g.setPrintPos(SD_DURATION_X, 63);
+        lcd_print(buffer);
+    }
+
   #endif
 
   //
