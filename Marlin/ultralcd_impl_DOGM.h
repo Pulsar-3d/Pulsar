@@ -377,7 +377,7 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
   }
 }
 
-//#define DOGM_SD_PERCENT
+#define DOGM_SD_PERCENT
 
 static void lcd_implementation_status_screen() {
 
