@@ -959,6 +959,15 @@ void kill_screen(const char* lcd_msg) {
     }
   #endif
 
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_enqueue_filament_cold_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M109 S200"));
+      enqueue_and_echo_commands_P(PSTR("M600"));
+      enqueue_and_echo_commands_P(PSTR("M104 S0"));
+    }
+  #endif
+
   /**
    *
    * "Tune" submenu
@@ -1504,6 +1513,12 @@ KeepDrawing:
       else
         MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
+
+
+    //
+    // Change filament menu
+    //
+    MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_cold_change);
 
     //
     // Auto Home
