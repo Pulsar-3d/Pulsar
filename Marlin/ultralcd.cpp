@@ -582,6 +582,7 @@ void kill_screen(const char* lcd_msg) {
         thermalManager.autotempShutdown();
       #endif
       wait_for_heatup = false;
+      thermalManager.disable_all_heaters();
       lcd_setstatus(MSG_PRINT_ABORTED, true);
     }
 
