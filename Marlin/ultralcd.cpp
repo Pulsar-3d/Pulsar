@@ -1501,9 +1501,11 @@ void kill_screen(const char* lcd_msg) {
     #define _MOVE_XYZ_ALLOWED true
   #endif
 
-  void _lcd_move_menu_axis() {
+  void lcd_move_menu() {
     START_MENU();
-    MENU_BACK(MSG_MOVE_AXIS);
+    MENU_BACK(MSG_PREPARE);
+
+    move_menu_scale = 1.0;
 
     if (_MOVE_XYZ_ALLOWED) {
       MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
@@ -1532,38 +1534,6 @@ void kill_screen(const char* lcd_msg) {
         #endif
       #endif
     }
-    END_MENU();
-  }
-
-  void lcd_move_menu_10mm() {
-    move_menu_scale = 10.0;
-    _lcd_move_menu_axis();
-  }
-  void lcd_move_menu_1mm() {
-    move_menu_scale = 1.0;
-    _lcd_move_menu_axis();
-  }
-  void lcd_move_menu_01mm() {
-    move_menu_scale = 0.1;
-    _lcd_move_menu_axis();
-  }
-
-  /**
-   *
-   * "Prepare" > "Move Axis" submenu
-   *
-   */
-
-  void lcd_move_menu() {
-    START_MENU();
-    MENU_BACK(MSG_PREPARE);
-
-    if (_MOVE_XYZ_ALLOWED)
-      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
-    //TODO:X,Y,Z,E
     END_MENU();
   }
 
