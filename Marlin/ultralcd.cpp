@@ -744,23 +744,6 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_WATCH);
 
-    //
-    // Debug Menu when certain options are enabled
-    //
-    #if HAS_DEBUG_MENU
-      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
-    #endif
-
-    //
-    // Switch case light on/off
-    //
-    #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (case_light_on)
-        MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
-      else
-        MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
-    #endif
-
     #if ENABLED(BLTOUCH)
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
@@ -1513,12 +1496,14 @@ KeepDrawing:
     MENU_BACK(MSG_MAIN);
 
     //
-    // Move Axis
+    // Switch case light on/off
     //
-    #if ENABLED(DELTA)
-      if (axis_homed[Z_AXIS])
+    #if ENABLED(MENU_ITEM_CASE_LIGHT)
+      if (case_light_on)
+        MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
+      else
+        MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
-        MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 
     //
     // Auto Home

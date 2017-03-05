@@ -229,7 +229,7 @@
 #if PIN_EXISTS(CASE_LIGHT)
   #define INVERT_CASE_LIGHT false   // Set to true if HIGH is the OFF state (active low)
   //#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
-  //#define MENU_ITEM_CASE_LIGHT    // Uncomment to have a Case Light On / Off entry in main menu
+  #define MENU_ITEM_CASE_LIGHT      // Uncomment to have a Case Light On / Off entry in main menu
 #endif
 
 //===========================================================================
