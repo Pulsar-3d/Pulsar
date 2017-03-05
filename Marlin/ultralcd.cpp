@@ -1294,6 +1294,11 @@ void kill_screen(const char* lcd_msg) {
     //MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
 
     //
+    // Temperature menu
+    //
+    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
+
+    //
     // Preheat PLA
     // Preheat ABS
     //
@@ -1546,7 +1551,6 @@ void kill_screen(const char* lcd_msg) {
   void lcd_control_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
     MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
@@ -1657,7 +1661,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // ^ Control
     //
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_PREPARE);
 
     //
     // Nozzle:
