@@ -679,7 +679,7 @@
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+   #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
     #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
