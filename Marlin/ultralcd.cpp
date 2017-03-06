@@ -601,6 +601,19 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_enqueue_filament_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M600"));
+    }
+    void lcd_enqueue_filament_cold_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M109 S200"));
+      enqueue_and_echo_commands_P(PSTR("M600"));
+      enqueue_and_echo_commands_P(PSTR("M104 S0"));
+    }
+  #endif // FILAMENT_CHANGE_FEATURE
+
   /**
    *
    * "Main" menu
@@ -617,9 +630,15 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+       MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+    #endif
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
     else {
+      #if ENABLED(FILAMENT_CHANGE_FEATURE)
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_cold_change);
+      #endif
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
       #if ENABLED(DELTA_CALIBRATION_MENU)
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
@@ -745,22 +764,6 @@ void kill_screen(const char* lcd_msg) {
     #endif
   #endif
 
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    void lcd_enqueue_filament_change() {
-      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-      enqueue_and_echo_commands_P(PSTR("M600"));
-    }
-  #endif
-
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    void lcd_enqueue_filament_cold_change() {
-      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-      enqueue_and_echo_commands_P(PSTR("M109 S200"));
-      enqueue_and_echo_commands_P(PSTR("M600"));
-      enqueue_and_echo_commands_P(PSTR("M104 S0"));
-    }
-  #endif
-
   /**
    *
    * "Tune" submenu
@@ -870,13 +873,6 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
       #endif //BABYSTEP_XY
       MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
-    #endif
-
-    //
-    // Change filament
-    //
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-       MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
     END_MENU();
@@ -1265,12 +1261,6 @@ void kill_screen(const char* lcd_msg) {
       else
         MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
-
-
-    //
-    // Change filament menu
-    //
-    MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_cold_change);
 
     //
     // Auto Home
