@@ -694,46 +694,18 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
-  #if ENABLED(LCD_PROGRESS_BAR_TEST)
-
-    static void progress_bar_test() {
-      static int8_t bar_percent = 0;
-      if (lcd_clicked) {
-        lcd_goto_previous_menu();
-        lcd_set_custom_characters(false);
-        return;
-      }
-      bar_percent += (int8_t)encoderPosition;
-      bar_percent = constrain(bar_percent, 0, 100);
-      encoderPosition = 0;
-      lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.print('%');
-      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_enqueue_filament_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M600"));
     }
-
-    void _progress_bar_test() {
-      lcd_goto_screen(progress_bar_test);
-      lcd_set_custom_characters();
+    void lcd_enqueue_filament_cold_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M109 S200"));
+      enqueue_and_echo_commands_P(PSTR("M600"));
+      enqueue_and_echo_commands_P(PSTR("M104 S0"));
     }
-
-  #endif // LCD_PROGRESS_BAR_TEST
-
-  #if HAS_DEBUG_MENU
-
-    void lcd_debug_menu() {
-      START_MENU();
-
-      MENU_BACK(MSG_MAIN); // ^ Main
-
-      #if ENABLED(LCD_PROGRESS_BAR_TEST)
-        MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
-      #endif
-
-      END_MENU();
-    }
-
-  #endif // HAS_DEBUG_MENU
+  #endif // FILAMENT_CHANGE_FEATURE
 
   /**
    *
@@ -751,9 +723,15 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+       MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+    #endif
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
     else {
+      #if ENABLED(FILAMENT_CHANGE_FEATURE)
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_cold_change);
+      #endif
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
       #if ENABLED(DELTA_CALIBRATION_MENU)
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
@@ -946,27 +924,6 @@ void kill_screen(const char* lcd_msg) {
     #if TEMP_SENSOR_BED != 0
       void watch_temp_callback_bed() {}
     #endif
-  #endif
-
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    void lcd_enqueue_filament_change() {
-      if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
-        lcd_save_previous_screen();
-        lcd_goto_screen(lcd_filament_change_toocold_menu);
-        return;
-      }
-      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-      enqueue_and_echo_commands_P(PSTR("M600"));
-    }
-  #endif
-
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    void lcd_enqueue_filament_cold_change() {
-      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-      enqueue_and_echo_commands_P(PSTR("M109 S200"));
-      enqueue_and_echo_commands_P(PSTR("M600"));
-      enqueue_and_echo_commands_P(PSTR("M104 S0"));
-    }
   #endif
 
   /**
@@ -1514,12 +1471,6 @@ KeepDrawing:
       else
         MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
-
-
-    //
-    // Change filament menu
-    //
-    MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_cold_change);
 
     //
     // Auto Home
