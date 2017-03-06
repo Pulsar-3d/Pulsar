@@ -2072,7 +2072,7 @@ KeepDrawing:
     // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     //
-    #if ENABLED(PIDTEMP)
+    #if ENABLED(PIDTEMP_NO)
 
       #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
