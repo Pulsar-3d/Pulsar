@@ -624,6 +624,11 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_WATCH);
 
+    #if HAS_BED_PROBE
+      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
+    #endif
+
     #if ENABLED(BLTOUCH)
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
