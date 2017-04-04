@@ -35,7 +35,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "1.1.0-RC8"
+  #define SHORT_BUILD_VERSION "1.1.0-2"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -87,6 +87,6 @@
    * The WEBSITE_URL is the location where users can get more information such as
    * documentation about a specific Marlin release.
    */
-  #define WEBSITE_URL "http://marlinfw.org"
+  #define WEBSITE_URL "http://pulsar3d.com"
 
 #endif // USE_AUTOMATIC_VERSIONING
