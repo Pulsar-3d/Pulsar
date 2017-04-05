@@ -624,11 +624,6 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_WATCH);
 
-    #if HAS_BED_PROBE
-      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
-      MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
-    #endif
-
     #if ENABLED(BLTOUCH)
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
@@ -1249,6 +1244,19 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
+// Z probe offset move axis  
+   #if HAS_BED_PROBE
+        void zprobe_zoffset_test(){
+		if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    			enqueue_and_echo_commands_P(PSTR("G28"));
+		}
+                Config_StoreSettings();
+                enqueue_and_echo_commands_P(PSTR("G28 Z"));
+                enqueue_and_echo_commands_P(PSTR("G0 Z0"));
+   }
+   #endif
+// end Z probe offset move axis
+
   void lcd_prepare_menu() {
     START_MENU();
 
@@ -1265,6 +1273,10 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
       else
         MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
+    #endif
+
+    #if HAS_BED_PROBE
+      MENU_ITEM_EDIT_CALLBACK(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, zprobe_zoffset_test);
     #endif
 
     //
