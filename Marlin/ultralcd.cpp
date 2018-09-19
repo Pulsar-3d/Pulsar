@@ -1232,6 +1232,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
       void lcd_babystep_zoffset() {
+	if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS)) {
+		enqueue_and_echo_commands_P(PSTR("M851 Z0"));
+    		enqueue_and_echo_commands_P(PSTR("G28"));
+		enqueue_and_echo_commands_P(PSTR("M851 Z0"));
+		enqueue_and_echo_commands_P(PSTR("M117"));
+	}
         if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
         defer_return_to_status = true;
         ENCODER_DIRECTION_NORMAL();
