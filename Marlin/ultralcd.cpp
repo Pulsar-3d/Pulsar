@@ -2673,6 +2673,22 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     //
+    // Change filament
+    //
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (!IS_SD_FILE_OPEN) {
+        #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+            MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+          else
+            MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
+        #else
+          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
+        #endif
+      }
+    #endif // ADVANCED_PAUSE_FEATURE
+
+    //
     // Move Axis
     //
     #if ENABLED(DELTA)
@@ -2742,22 +2758,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Disable Steppers
     //
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
-
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!IS_SD_FILE_OPEN) {
-        #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-            MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-          else
-            MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
-        #else
-          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
-        #endif
-      }
-    #endif // ADVANCED_PAUSE_FEATURE
 
     #if HAS_TEMP_HOTEND
 
