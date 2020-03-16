@@ -55,6 +55,35 @@
 
 */
 
+/*
+  modified by alpine to 3x upscale for 3.5 TFT of the TwoTrees Sapphire Pro
+  ToDo:
+  * touchUI in general
+  * check touch control to match hotzones to desired design
+  * 
+  * make selectable upscale options (own class)
+  * configurable through main/board config
+  * 
+  for 480x320 px
+  desired screen arrangement:
+        <-- 480 px -->
+   __________________________
+  |_| top offset: 32 px    |_|
+  |_|______________________|_|  /\
+  | | Marlin display       |_|  |
+  | | 384*192 px           |_|  |
+  |_|______________________|_|  320 px
+  |_| middle spacing 16 px |_|  |
+  |_|______________________|_|  |
+  | | touch UI: 384*64 px  |_|  \/
+  | | element Y: 2+60+2 px |_|
+  |_|______________________|_|
+  |_| bottom offset: 16 px |_|
+  |_|______________________|_|
+   ^- left offset:          ^- right offset:
+      48 px                    48 px
+*/
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD && PIN_EXISTS(FSMC_CS)
@@ -79,8 +108,8 @@
 
 #define X_LO LCD_PIXEL_OFFSET_X
 #define Y_LO LCD_PIXEL_OFFSET_Y
-#define X_HI (X_LO + 2 * WIDTH  - 1)
-#define Y_HI (Y_LO + 2 * HEIGHT - 1)
+#define X_HI (X_LO + 3 * WIDTH  - 1)
+#define Y_HI (Y_LO + 3 * HEIGHT - 1)
 
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
@@ -381,6 +410,9 @@ static const uint16_t ili9341_init[] = {
   ESC_END
 };
 
+//@ ToDo
+// check positions for new offsets
+
 #if ENABLED(TOUCH_BUTTONS)
 
   static const uint8_t buttonD[] = {
@@ -526,6 +558,11 @@ static const uint16_t ili9341_init[] = {
     B01111111,B11111111,B11111111,B11111110,
   };
 
+
+  //@ ToDo 
+  // *check for button sizes and how to upscale to fit on screen
+  // *check if other parts of marlin use drawImage
+
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
     uint16_t buffer[128];
 
@@ -569,7 +606,7 @@ static uint8_t page;
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
   #ifdef LCD_USE_DMA_FSMC
-    static uint16_t bufferA[512], bufferB[512];
+    static uint16_t bufferA[1152], bufferB[1152];
     uint16_t* buffer = &bufferA[0];
     bool allow_async = true;
   #else
@@ -678,16 +715,34 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
-          buffer[k++] = c; buffer[k++] = c;
+          //@ 2x upscale X
+          // resulting buffersize RGB565 * 256 - 128*2
+
+          //buffer[k++] = c; 
+          //buffer[k++] = c;
+
+          //@ 3x upscale X and Y in same loop
+          // resulting buffersize RGB565 * 1152 - 128*3*3
+          // need to check what solution is faster
+
+          buffer[k+384] = c;
+          buffer[k+768] = c;
+          buffer[k++] = c;
+          buffer[k+384] = c;
+          buffer[k+768] = c;
+          buffer[k++] = c;
+          buffer[k+384] = c;
+          buffer[k+768] = c;
+          buffer[k++] = c;
+
         }
         #ifdef LCD_USE_DMA_FSMC
-          memcpy(&buffer[256], &buffer[0], 512);
           if (allow_async) {
             if (y > 0 || page > 1) LCD_IO_WaitSequence_Async();
             if (y == 7 && page == 8)
-              LCD_IO_WriteSequence(buffer, 512); // last line of last page
+              LCD_IO_WriteSequence(buffer, 1152); // last line of last page
             else
-              LCD_IO_WriteSequence_Async(buffer, 512);
+              LCD_IO_WriteSequence_Async(buffer, 1152);
           }
           else
             LCD_IO_WriteSequence(buffer, 512);
